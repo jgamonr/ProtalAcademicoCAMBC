@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal de Exámenes y Boletas</title>
+  <style>
+    :root {
+      --bg: #eef3f6;
+      --ink: #1e293b;
+      --muted: #64748b;
+      --panel: #ffffff;
+      --line: #d6dde7;
+      --blue: #145b8f;
+      --green: #14795f;
+      --red: #bd3b45;
+      --amber: #d89216;
+      --navy: #0f2438;
+      --ice: #dff2f8;
+      --shadow: 0 16px 36px rgba(15, 36, 56, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(238, 243, 246, .94), rgba(238, 243, 246, 1) 360px),
+        radial-gradient(circle at 20% 0%, rgba(20, 91, 143, .18), transparent 34%),
+        var(--bg);
+      min-width: 320px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, .92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      max-width: 1280px;
+      margin: auto;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      padding: 4px;
+      background: #fff;
+      border: 1px solid rgba(20, 91, 143, .25);
+      box-shadow: 0 8px 18px rgba(15, 36, 56, .14);
+      object-fit: contain;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.5vw, 1.9rem);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .94rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 100%;
+    }
+
+    button, .button {
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      line-height: 1.2;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    button.danger {
+      background: var(--red);
+    }
+
+    button.good {
+      background: var(--green);
+    }
+
+    button.tab {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    button.tab.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    main {
+      max-width: 1280px;
+      margin: auto;
+      padding: 18px;
+      width: 100%;
+    }
+
+    .brand-hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 260px;
+      border: 1px solid rgba(255, 255, 255, .48);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      color: #fff;
+      padding: 26px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 18px;
+      background:
+        linear-gradient(180deg, rgba(6, 19, 32, .06), rgba(6, 19, 32, .78)),
+        linear-gradient(150deg, #9ed1e3 0 34%, #f7fbff 34% 37%, #6f8796 37% 50%, #304457 50% 68%, #13283b 68% 100%);
+    }
+
+    .brand-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255,255,255,.8) 0 3%, transparent 3.2%),
+        linear-gradient(132deg, transparent 0 43%, rgba(255,255,255,.9) 43% 45%, transparent 45%),
+        linear-gradient(150deg, transparent 0 58%, rgba(20,121,95,.38) 58% 100%);
+      opacity: .9;
+      pointer-events: none;
+    }
+
+    .brand-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-logo {
+      width: 156px;
+      height: 156px;
+      justify-self: end;
+      align-self: center;
+      border-radius: 50%;
+      object-fit: contain;
+      background: rgba(255,255,255,.94);
+      padding: 10px;
+      box-shadow: 0 18px 36px rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.72);
+    }
+
+    .brand-hero h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 4vw, 2.8rem);
+      max-width: 760px;
+      letter-spacing: 0;
+    }
+
+    .brand-hero p {
+      max-width: 760px;
+      color: rgba(255,255,255,.9);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .hero-actions button {
+      background: rgba(255,255,255,.94);
+      color: var(--navy);
+      border-color: rgba(255,255,255,.65);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .grid > * {
+      min-width: 0;
+    }
+
+    .panel, .card, .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel { padding: 16px; }
+    .card { padding: 14px; }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .between {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    h2, h3 {
+      margin: 0 0 8px;
+      letter-spacing: 0;
+    }
+
+    h2 { font-size: 1.18rem; }
+    h3 { font-size: 1rem; }
+
+    p {
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      max-width: 100%;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .list button {
+      justify-content: flex-start;
+      text-align: left;
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .list button.active {
+      border-color: var(--blue);
+      outline: 3px solid rgba(31, 111, 178, .14);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #eef7ff;
+      color: #183a5d;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .question-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+      min-width: 0;
+    }
+
+    .option-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px 42px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-area {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      min-width: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      font-size: .84rem;
+      color: #475569;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .notice {
+      border: 1px solid #b8d7f4;
+      border-radius: 8px;
+      padding: 10px;
+      color: #183a5d;
+      background: #eef7ff;
+    }
+
+    .grade {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .exam-player {
+      display: grid;
+      gap: 14px;
+    }
+
+    .student-question {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      min-width: 0;
+    }
+
+    .student-question h3 {
+      margin-bottom: 6px;
+    }
+
+    .hidden { display: none; }
+
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(5, 18, 31, .18), rgba(238, 243, 246, .96)),
+        linear-gradient(150deg, #86b6d9 0 38%, #f8fbff 38% 41%, #51647b 41% 56%, #253348 56% 100%);
+    }
+
+    .login-card {
+      width: min(520px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .login-brand {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .login-brand img {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      object-fit: contain;
+      border: 1px solid rgba(20, 91, 143, .25);
+      padding: 5px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 36, 56, .12);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .security-note {
+      border: 1px solid #f4c983;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff8e8;
+      color: #6b4504;
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+
+    body.locked header,
+    body.locked main {
+      display: none;
+    }
+
+    body:not(.locked) .login-screen {
+      display: none;
+    }
+
+    @media (min-width: 921px) {
+      .view > .grid > .panel:first-child {
+        position: sticky;
+        top: 96px;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 920px) {
+      header {
+        position: static;
+      }
+
+      .topbar, .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      button.tab {
+        flex: 0 0 auto;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      table {
+        min-width: 640px;
+      }
+
+      .brand-hero {
+        grid-template-columns: 1fr;
+        min-height: 300px;
+      }
+
+      .hero-logo {
+        justify-self: start;
+        width: 112px;
+        height: 112px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      main {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.18rem;
+      }
+
+      h2 {
+        font-size: 1.06rem;
+      }
+
+      .subtitle, .muted {
+        font-size: .88rem;
+      }
+
+      button, .button, input, select {
+        min-height: 44px;
+      }
+
+      button, .button {
+        width: 100%;
+      }
+
+      .tabs button {
+        width: auto;
+      }
+
+      .row, .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .between {
+        align-items: stretch;
+      }
+
+      .between > * {
+        width: 100%;
+      }
+
+      .card, .panel, .question-card, .student-question {
+        padding: 12px;
+      }
+
+      .choice {
+        grid-template-columns: 26px minmax(0, 1fr);
+        padding: 10px;
+      }
+
+      .answer-area {
+        padding: 10px;
+      }
+
+      .login-screen {
+        padding: 12px;
+        align-items: start;
+      }
+
+      .login-card {
+        padding: 16px;
+        margin-top: 10px;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .brand-logo {
+        width: 48px;
+        height: 48px;
+      }
+
+      .brand-hero {
+        padding: 18px;
+        min-height: 340px;
+      }
+
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .login-brand {
+        grid-template-columns: 68px minmax(0, 1fr);
+      }
+
+      .login-brand img {
+        width: 68px;
+        height: 68px;
+      }
+
+      .grade {
+        font-size: 1.55rem;
+      }
+
+      table {
+        min-width: 560px;
+        font-size: .88rem;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .badge {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .list button {
+        padding: 10px;
+      }
+
+      textarea {
+        min-height: 110px;
+      }
+    }
+  </style>
+</head>
+<body class="locked">
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="CAM.png" alt="Logo Club Alpino Mexicano">
+        <div>
+          <h1>Acceso al portal</h1>
+          <p class="subtitle">Club Alpino Mexicano · Exámenes y boletas</p>
+        </div>
+      </div>
+      <label for="loginRole">Tipo de usuario</label>
+      <select id="loginRole">
+        <option value="admin">Administrador</option>
+        <option value="student">Alumno</option>
+      </select>
+      <label for="loginUser">Usuario</label>
+      <input id="loginUser" placeholder="Admin: admin / Alumno: matrícula">
+      <label for="loginPass">Clave</label>
+      <input id="loginPass" type="password" placeholder="Admin: admin123 / Alumno: 1234">
+      <button id="loginButton">Entrar</button>
+      <div class="security-note">
+        Muestra de seguridad: bloquea vistas por rol en el navegador. Para impedir robo real de respuestas o datos de alumnos, la informacion debe guardarse en un servidor/base de datos, no dentro del HTML.
+      </div>
+      <div class="notice" id="loginMessage">Datos de prueba: admin / admin123. Alumnos: matrícula A-001 o A-002 con clave 1234.</div>
+    </div>
+  </div>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="CAM.png" alt="Logo Club Alpino Mexicano">
+        <div>
+          <h1>Portal de Exámenes y Boletas</h1>
+          <p class="subtitle">Administración de exámenes, tipos de respuesta, matrícula de alumnos y calificaciones.</p>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab active" data-view="dashboard">Inicio</button>
+        <button class="tab" data-view="exams">Exámenes</button>
+        <button class="tab" data-view="students">Matrícula</button>
+        <button class="tab" data-view="take">Vista alumno</button>
+        <button class="tab" data-view="grades">Boletas</button>
+        <button class="tab" id="logoutButton">Salir</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" id="dashboard">
+      <div class="brand-hero">
+        <div>
+          <h2>Evaluación técnica para formación en montaña</h2>
+          <p>Portal demostrativo con administración de exámenes, matrícula, acceso por rol, boletas y 19 tipos de respuesta configurables para cursos de alta montaña.</p>
+          <div class="hero-actions">
+            <button type="button" data-hero-view="exams">Configurar exámenes</button>
+            <button type="button" data-hero-view="students">Gestionar matrícula</button>
+          </div>
+        </div>
+        <img class="hero-logo" src="CAM.png" alt="Logo Club Alpino Mexicano">
+      </div>
+      <div class="grid">
+        <div class="panel stack">
+          <h2>Resumen</h2>
+          <div class="card">
+            <span class="badge">Exámenes</span>
+            <div class="grade" id="dashExamCount">0</div>
+          </div>
+          <div class="card">
+            <span class="badge">Alumnos</span>
+            <div class="grade" id="dashStudentCount">0</div>
+          </div>
+          <div class="card">
+            <span class="badge">Boletas generadas</span>
+            <div class="grade" id="dashGradeCount">0</div>
+          </div>
+        </div>
+        <div class="panel stack">
+          <h2>Qué permite este portal</h2>
+          <p class="muted">Crear exámenes, agregar preguntas, elegir el tipo de respuesta, marcar la respuesta correcta, registrar alumnos y consultar boletas. Es una muestra estática que guarda datos en este navegador.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Módulo</th><th>Funciones</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Exámenes</td><td>Crear, editar título, tema, instrucciones, preguntas y respuestas correctas.</td></tr>
+                <tr><td>Tipos de respuesta</td><td>19 formatos: opcion unica, seleccion multiple, verdadero/falso, corta, numerica, desplegable, escala, texto abierto, archivo, fecha, hora, correo, URL, completar espacios, matriz, relacionar, ordenar, estrellas y dibujo.</td></tr>
+                <tr><td>Matrícula</td><td>Alta, edición y baja de alumnos con matrícula, nombre, grupo y correo.</td></tr>
+                <tr><td>Alumno</td><td>Seleccionar alumno, contestar examen y guardar calificación.</td></tr>
+                <tr><td>Boleta</td><td>Ver historial de calificaciones por alumno con fecha, examen, puntaje y estado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="notice">Para producción real se conectaría a una base de datos y usuarios con contraseña. Esta muestra funciona sin servidor.</div>
+          <div class="security-note">Privacidad: no subas datos reales de alumnos en esta version estatica. En produccion, matriculas, correos, claves, respuestas y boletas deben estar protegidas con autenticacion, permisos por rol, cifrado y registros de acceso en servidor.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="exams">
+      <div class="grid">
+        <div class="panel stack">
+          <div class="between">
+            <h2>Exámenes</h2>
+            <button id="newExam">Nuevo</button>
+          </div>
+          <div class="list" id="examList"></div>
+        </div>
+        <div class="panel stack">
+          <div class="between">
+            <h2>Editor de examen</h2>
+            <button class="danger" id="deleteExam">Eliminar examen</button>
+          </div>
+          <div id="examEditor"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="students">
+      <div class="grid">
+        <div class="panel stack">
+          <h2>Registrar alumno</h2>
+          <label for="studentId">Matrícula</label>
+          <input id="studentId" placeholder="Ej. A-001">
+          <label for="studentName">Nombre completo</label>
+          <input id="studentName" placeholder="Nombre del alumno">
+          <label for="studentGroup">Grupo</label>
+          <input id="studentGroup" placeholder="Ej. Alta Montaña 1">
+          <label for="studentEmail">Correo</label>
+          <input id="studentEmail" type="email" placeholder="alumno@correo.com">
+          <label for="studentPin">Clave de acceso</label>
+          <input id="studentPin" placeholder="Ej. 1234">
+          <div class="actions row">
+            <button id="saveStudent">Guardar alumno</button>
+            <button class="secondary" id="clearStudent">Limpiar</button>
+          </div>
+        </div>
+        <div class="panel stack">
+          <h2>Matrícula de alumnos</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Matrícula</th><th>Nombre</th><th>Grupo</th><th>Correo</th><th>Clave</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="studentsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="take">
+      <div class="grid">
+        <div class="panel stack">
+          <h2>Acceso del alumno</h2>
+          <label for="takeStudent">Alumno</label>
+          <select id="takeStudent"></select>
+          <label for="takeExam">Examen</label>
+          <select id="takeExam"></select>
+          <button id="loadExam" class="good">Cargar examen</button>
+          <div class="notice">Esta vista simula lo que vería un alumno para responder y generar su calificación.</div>
+        </div>
+        <div class="panel stack">
+          <h2>Examen del alumno</h2>
+          <div id="examPlayer" class="exam-player"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="grades">
+      <div class="grid">
+        <div class="panel stack">
+          <h2>Consultar boleta</h2>
+          <label for="gradeStudent">Alumno</label>
+          <select id="gradeStudent"></select>
+          <div id="studentCard" class="card"></div>
+        </div>
+        <div class="panel stack">
+          <h2>Boleta de calificaciones</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>Examen</th><th>Tema</th><th>Calificación</th><th>Correctas</th><th>Estado</th></tr>
+              </thead>
+              <tbody id="gradesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = "portal_examenes_muestra_v2";
+    const sessionKey = "portal_examenes_session_v1";
+    const typeLabels = {
+      single: "Opción única",
+      multiple: "Selección múltiple",
+      truefalse: "Verdadero/Falso",
+      short: "Respuesta corta",
+      number: "Numérica",
+      dropdown: "Desplegable",
+      scale: "Escala",
+      essay: "Texto abierto",
+      file: "Archivo",
+      date: "Fecha",
+      time: "Hora",
+      email: "Correo electronico",
+      url: "Enlace URL",
+      fillblank: "Completar espacios",
+      matrix: "Matriz",
+      matching: "Relacionar columnas",
+      order: "Ordenar elementos",
+      rating: "Estrellas",
+      drawing: "Dibujo o anotacion"
+    };
+    const optionTypes = ["single", "multiple", "dropdown", "order"];
+    const manualTypes = ["essay", "file", "drawing"];
+
+    const defaultData = {
+      selectedExamId: "exam-1",
+      editingStudentId: null,
+      exams: [
+        {
+          id: "exam-1",
+          title: "Alta Montaña: Seguridad Básica",
+          topic: "Alta montaña",
+          instructions: "Lee cada pregunta y responde según el tipo solicitado.",
+          passingScore: 70,
+          questions: [
+            {
+              id: "q-1",
+              type: "single",
+              text: "¿Desde qué altitud aumenta para muchas personas el riesgo de mal agudo de montaña?",
+              options: ["800 m", "2,500 m", "7,000 m", "Solo con nieve"],
+              correct: ["2,500 m"]
+            },
+            {
+              id: "q-2",
+              type: "multiple",
+              text: "Selecciona señales de alarma en altura.",
+              options: ["Confusión", "Dolor de cabeza progresivo", "Hambre normal", "Dificultad respiratoria en reposo"],
+              correct: ["Confusión", "Dolor de cabeza progresivo", "Dificultad respiratoria en reposo"]
+            },
+            {
+              id: "q-3",
+              type: "truefalse",
+              text: "Si hay síntomas neurológicos se debe continuar ascendiendo.",
+              options: ["Verdadero", "Falso"],
+              correct: ["Falso"]
+            },
+            {
+              id: "q-4",
+              type: "number",
+              text: "Número mínimo recomendado de integrantes para esta muestra.",
+              options: [],
+              correct: ["3"]
+            },
+            {
+              id: "q-5",
+              type: "dropdown",
+              text: "Selecciona la mejor decision si el grupo va tarde y se acerca tormenta.",
+              options: ["Continuar", "Separarse", "Retirarse", "Ignorar clima"],
+              correct: ["Retirarse"]
+            },
+            {
+              id: "q-6",
+              type: "scale",
+              text: "Marca la severidad esperada ante confusion y perdida de coordinacion.",
+              options: [],
+              correct: ["5"]
+            },
+            {
+              id: "q-7",
+              type: "essay",
+              text: "Justifica brevemente por que descenderias ante sintomas graves.",
+              options: [],
+              correct: ["Menciona descenso, seguridad o ayuda medica"]
+            },
+            {
+              id: "q-8",
+              type: "file",
+              text: "Adjunta un plan de ruta o evidencia de planificacion.",
+              options: [],
+              correct: ["Archivo adjunto"]
+            },
+            {
+              id: "q-9",
+              type: "date",
+              text: "Fecha programada de la practica.",
+              options: [],
+              correct: ["2026-06-15"]
+            },
+            {
+              id: "q-10",
+              type: "time",
+              text: "Hora prudente de salida para evitar tormenta vespertina.",
+              options: [],
+              correct: ["05:30"]
+            },
+            {
+              id: "q-11",
+              type: "email",
+              text: "Correo de contacto del instructor.",
+              options: [],
+              correct: ["instructor@montana.edu"]
+            },
+            {
+              id: "q-12",
+              type: "url",
+              text: "URL del pronostico oficial revisado.",
+              options: [],
+              correct: ["https://pronostico.example.com"]
+            },
+            {
+              id: "q-13",
+              type: "fillblank",
+              text: "Completa: ante sintomas graves se debe ______.",
+              options: [],
+              correct: ["descender"]
+            },
+            {
+              id: "q-14",
+              type: "matrix",
+              text: "Clasifica riesgos en formato situacion=nivel.",
+              options: [],
+              correct: ["nieve reciente=alto\nsendero estable=bajo\nvisibilidad bajando=alto"]
+            },
+            {
+              id: "q-15",
+              type: "matching",
+              text: "Relaciona equipo y funcion en formato equipo=funcion.",
+              options: [],
+              correct: ["piolet=autodetencion\ngafas=proteccion uv\nbotiquin=emergencia"]
+            },
+            {
+              id: "q-16",
+              type: "order",
+              text: "Ordena la secuencia segura de decision.",
+              options: ["Revisar clima", "Evaluar sintomas", "Decidir retirada", "Descender"],
+              correct: ["Revisar clima\nEvaluar sintomas\nDecidir retirada\nDescender"]
+            },
+            {
+              id: "q-17",
+              type: "rating",
+              text: "Confianza para continuar con mal clima: 1 es muy baja, 5 es muy alta.",
+              options: [],
+              correct: ["1"]
+            },
+            {
+              id: "q-18",
+              type: "drawing",
+              text: "Dibuja una ruta simple de retirada.",
+              options: [],
+              correct: ["Dibujo realizado"]
+            },
+            {
+              id: "q-19",
+              type: "short",
+              text: "Palabra clave para la accion prioritaria ante emergencia en altura.",
+              options: [],
+              correct: ["descender"]
+            }
+          ]
+        }
+      ],
+      students: [
+        { id: "A-001", name: "María López", group: "Alta Montaña 1", email: "maria@example.com", pin: "1234" },
+        { id: "A-002", name: "Carlos Rivera", group: "Alta Montaña 1", email: "carlos@example.com", pin: "1234" }
+      ],
+      grades: [
+        {
+          id: "g-1",
+          studentId: "A-001",
+          examId: "exam-1",
+          examTitle: "Alta Montaña: Seguridad Básica",
+          topic: "Alta montaña",
+          score: 88,
+          correct: 17,
+          total: 19,
+          date: "2026-06-09 14:00",
+          status: "Aprobado"
+        }
+      ]
+    };
+
+    let data = loadData();
+    let session = loadSession();
+
+    function loadData() {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return structuredClone(defaultData);
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return structuredClone(defaultData);
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      renderAll();
+    }
+
+    function loadSession() {
+      const raw = sessionStorage.getItem(sessionKey);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function saveSession(nextSession) {
+      session = nextSession;
+      if (session) sessionStorage.setItem(sessionKey, JSON.stringify(session));
+      else sessionStorage.removeItem(sessionKey);
+      applySecurity();
+      renderAll();
+    }
+
+    function uid(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`;
+    }
+
+    function selectedExam() {
+      return data.exams.find(exam => exam.id === data.selectedExamId) || data.exams[0] || null;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function maskSecret(value) {
+      return value ? "••••" : "Sin clave";
+    }
+
+    function parseLines(value) {
+      return String(value || "").split("\n").map(item => item.trim()).filter(Boolean);
+    }
+
+    function sameSet(a, b) {
+      const aa = [...a].map(String).sort().join("||");
+      const bb = [...b].map(String).sort().join("||");
+      return aa === bb;
+    }
+
+    function showView(viewId) {
+      if (session?.role === "student" && !["take", "grades"].includes(viewId)) viewId = "take";
+      document.querySelectorAll(".view").forEach(view => view.classList.toggle("active", view.id === viewId));
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === viewId));
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => showView(tab.dataset.view));
+    });
+
+    document.querySelectorAll("[data-hero-view]").forEach(button => {
+      button.addEventListener("click", () => showView(button.dataset.heroView));
+    });
+
+    document.getElementById("loginRole").addEventListener("change", () => {
+      const role = document.getElementById("loginRole").value;
+      document.getElementById("loginUser").placeholder = role === "admin" ? "admin" : "Matrícula del alumno";
+      document.getElementById("loginPass").placeholder = role === "admin" ? "admin123" : "Clave del alumno";
+    });
+
+    document.getElementById("loginButton").addEventListener("click", () => {
+      const role = document.getElementById("loginRole").value;
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+      if (role === "admin" && user === "admin" && pass === "admin123") {
+        saveSession({ role: "admin", user: "admin" });
+        showView("dashboard");
+        return;
+      }
+      if (role === "student") {
+        const student = data.students.find(item => item.id.toLowerCase() === user.toLowerCase() && String(item.pin || "1234") === pass);
+        if (student) {
+          saveSession({ role: "student", user: student.id });
+          document.getElementById("takeStudent").value = student.id;
+          document.getElementById("gradeStudent").value = student.id;
+          showView("take");
+          return;
+        }
+      }
+      document.getElementById("loginMessage").textContent = "Acceso denegado. Revisa usuario, matrícula o clave.";
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      document.getElementById("loginPass").value = "";
+      saveSession(null);
+    });
+
+    function applySecurity() {
+      document.body.classList.toggle("locked", !session);
+      const isStudent = session?.role === "student";
+      document.querySelectorAll('.tab[data-view="dashboard"], .tab[data-view="exams"], .tab[data-view="students"]').forEach(tab => {
+        tab.classList.toggle("hidden", isStudent);
+      });
+      if (isStudent) {
+        showView("take");
+      }
+    }
+
+    function renderDashboard() {
+      document.getElementById("dashExamCount").textContent = data.exams.length;
+      document.getElementById("dashStudentCount").textContent = data.students.length;
+      document.getElementById("dashGradeCount").textContent = data.grades.length;
+    }
+
+    function renderExamList() {
+      if (session?.role === "student") return;
+      const box = document.getElementById("examList");
+      if (!data.exams.length) {
+        box.innerHTML = '<div class="notice">No hay exámenes creados.</div>';
+        return;
+      }
+      box.innerHTML = data.exams.map(exam => `
+        <button class="${exam.id === data.selectedExamId ? "active" : ""}" data-select-exam="${exam.id}">
+          <span>
+            <strong>${escapeHtml(exam.title)}</strong><br>
+            <span class="muted">${escapeHtml(exam.topic)} · ${exam.questions.length} preguntas</span>
+          </span>
+        </button>
+      `).join("");
+      box.querySelectorAll("[data-select-exam]").forEach(button => {
+        button.addEventListener("click", () => {
+          data.selectedExamId = button.dataset.selectExam;
+          saveData();
+        });
+      });
+    }
+
+    function renderExamEditor() {
+      if (session?.role === "student") return;
+      const exam = selectedExam();
+      const editor = document.getElementById("examEditor");
+      if (!exam) {
+        editor.innerHTML = '<div class="notice">Crea un examen para empezar.</div>';
+        return;
+      }
+      editor.innerHTML = `
+        <div class="stack">
+          <div class="card">
+            <label for="examTitle">Título del examen</label>
+            <input id="examTitle" value="${escapeHtml(exam.title)}">
+            <label for="examTopic">Tema</label>
+            <input id="examTopic" value="${escapeHtml(exam.topic)}">
+            <label for="examInstructions">Instrucciones</label>
+            <textarea id="examInstructions">${escapeHtml(exam.instructions)}</textarea>
+            <label for="passingScore">Calificación mínima aprobatoria</label>
+            <input id="passingScore" type="number" min="0" max="100" value="${exam.passingScore}">
+            <div class="actions row">
+              <button id="saveExamMeta">Guardar datos del examen</button>
+              <button class="secondary" id="addQuestion">Agregar pregunta</button>
+            </div>
+          </div>
+          <div class="stack" id="questionList"></div>
+        </div>
+      `;
+      document.getElementById("saveExamMeta").addEventListener("click", () => {
+        exam.title = document.getElementById("examTitle").value.trim() || "Examen sin título";
+        exam.topic = document.getElementById("examTopic").value.trim() || "Sin tema";
+        exam.instructions = document.getElementById("examInstructions").value.trim();
+        exam.passingScore = Number(document.getElementById("passingScore").value) || 70;
+        saveData();
+      });
+      document.getElementById("addQuestion").addEventListener("click", () => {
+        exam.questions.push({
+          id: uid("q"),
+          type: "single",
+          text: "Nueva pregunta",
+          options: ["Opción A", "Opción B", "Opción C"],
+          correct: ["Opción A"]
+        });
+        saveData();
+      });
+      renderQuestionList(exam);
+    }
+
+    function renderQuestionList(exam) {
+      const box = document.getElementById("questionList");
+      box.innerHTML = exam.questions.map((question, index) => `
+        <div class="question-card" data-question-id="${question.id}">
+          <div class="between">
+            <h3>Pregunta ${index + 1}</h3>
+            <span class="badge">${typeLabels[question.type]}</span>
+          </div>
+          <label>Texto de la pregunta</label>
+          <textarea data-field="text">${escapeHtml(question.text)}</textarea>
+          <label>Tipo de respuesta</label>
+          <select data-field="type">
+            ${Object.entries(typeLabels).map(([value, label]) => `<option value="${value}" ${question.type === value ? "selected" : ""}>${label}</option>`).join("")}
+          </select>
+          <div class="option-editor ${optionTypes.includes(question.type) ? "" : "hidden"}">
+            <label>Opciones, una por línea</label>
+            <textarea data-field="options">${escapeHtml((question.options || []).join("\n"))}</textarea>
+          </div>
+          <label>Respuesta correcta</label>
+          <div class="answer-area">${renderCorrectEditor(question)}</div>
+          <div class="actions row">
+            <button data-save-question="${question.id}">Guardar pregunta</button>
+            <button class="danger" data-delete-question="${question.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join("");
+
+      box.querySelectorAll("[data-save-question]").forEach(button => {
+        button.addEventListener("click", () => saveQuestion(exam, button.dataset.saveQuestion));
+      });
+      box.querySelectorAll("[data-delete-question]").forEach(button => {
+        button.addEventListener("click", () => {
+          exam.questions = exam.questions.filter(question => question.id !== button.dataset.deleteQuestion);
+          saveData();
+        });
+      });
+      box.querySelectorAll('[data-field="type"]').forEach(select => {
+        select.addEventListener("change", event => {
+          const card = event.target.closest(".question-card");
+          const question = exam.questions.find(item => item.id === card.dataset.questionId);
+          question.type = event.target.value;
+          normalizeQuestionDefaults(question);
+          saveData();
+        });
+      });
+    }
+
+    function renderCorrectEditor(question) {
+      if (question.type === "single" || question.type === "dropdown") {
+        return (question.options || []).map(option => `
+          <label class="choice"><input type="radio" name="correct-${question.id}" value="${escapeHtml(option)}" ${question.correct?.[0] === option ? "checked" : ""}> ${escapeHtml(option)}</label>
+        `).join("") || '<p class="muted">Agrega opciones para seleccionar la correcta.</p>';
+      }
+      if (question.type === "multiple") {
+        return (question.options || []).map(option => `
+          <label class="choice"><input type="checkbox" name="correct-${question.id}" value="${escapeHtml(option)}" ${question.correct?.includes(option) ? "checked" : ""}> ${escapeHtml(option)}</label>
+        `).join("") || '<p class="muted">Agrega opciones para seleccionar las correctas.</p>';
+      }
+      if (question.type === "truefalse") {
+        return ["Verdadero", "Falso"].map(option => `
+          <label class="choice"><input type="radio" name="correct-${question.id}" value="${option}" ${question.correct?.[0] === option ? "checked" : ""}> ${option}</label>
+        `).join("");
+      }
+      if (question.type === "scale" || question.type === "rating") {
+        return '<input data-correct-text type="number" min="1" max="5" value="' + escapeHtml(question.correct?.[0] || "3") + '"><p class="muted">Valor correcto entre 1 y 5.</p>';
+      }
+      if (question.type === "rating") {
+        return '<input data-correct-text type="number" min="1" max="5" value="' + escapeHtml(question.correct?.[0] || "1") + '"><p class="muted">Valor correcto entre 1 y 5 estrellas.</p>';
+      }
+      if (question.type === "date") {
+        return '<input data-correct-text type="date" value="' + escapeHtml(question.correct?.[0] || "") + '">';
+      }
+      if (question.type === "time") {
+        return '<input data-correct-text type="time" value="' + escapeHtml(question.correct?.[0] || "") + '">';
+      }
+      if (question.type === "email") {
+        return '<input data-correct-text type="email" value="' + escapeHtml(question.correct?.[0] || "") + '">';
+      }
+      if (question.type === "url") {
+        return '<input data-correct-text type="url" value="' + escapeHtml(question.correct?.[0] || "") + '">';
+      }
+      if (["matrix", "matching", "order"].includes(question.type)) {
+        return '<textarea data-correct-text placeholder="Una respuesta por linea">' + escapeHtml(question.correct?.[0] || "") + '</textarea><p class="muted">Usa una linea por elemento. Para matriz o relacion, usa formato clave=valor.</p>';
+      }
+      if (manualTypes.includes(question.type)) {
+        return '<textarea data-correct-text placeholder="Rúbrica o criterio de revisión">' + escapeHtml(question.correct?.[0] || "Revisión manual") + '</textarea><p class="muted">Este tipo se guarda como criterio y puede calificarse manualmente. En la muestra se considera correcto si el alumno responde.</p>';
+      }
+      return '<input data-correct-text value="' + escapeHtml(question.correct?.[0] || "") + '">';
+    }
+
+    function normalizeQuestionDefaults(question) {
+      if (optionTypes.includes(question.type) && !question.options?.length) {
+        question.options = ["Opción A", "Opción B"];
+      }
+      if (question.type === "truefalse") {
+        question.options = ["Verdadero", "Falso"];
+        question.correct = [question.correct?.[0] === "Verdadero" ? "Verdadero" : "Falso"];
+      }
+      if (question.type === "scale") {
+        question.options = [];
+        question.correct = [question.correct?.[0] || "3"];
+      }
+      if (["short", "number", "essay", "file", "date", "time", "email", "url", "fillblank", "matrix", "matching", "drawing"].includes(question.type)) {
+        question.options = [];
+        question.correct = [question.correct?.[0] || ""];
+      }
+    }
+
+    function saveQuestion(exam, questionId) {
+      const card = document.querySelector(`[data-question-id="${questionId}"]`);
+      const question = exam.questions.find(item => item.id === questionId);
+      question.text = card.querySelector('[data-field="text"]').value.trim() || "Pregunta sin texto";
+      question.type = card.querySelector('[data-field="type"]').value;
+      if (optionTypes.includes(question.type)) {
+        question.options = parseLines(card.querySelector('[data-field="options"]').value);
+      }
+      normalizeQuestionDefaults(question);
+      if (["single", "dropdown", "truefalse"].includes(question.type)) {
+        question.correct = [card.querySelector(`input[name="correct-${question.id}"]:checked`)?.value || question.options?.[0] || "Verdadero"];
+      } else if (question.type === "multiple") {
+        question.correct = [...card.querySelectorAll(`input[name="correct-${question.id}"]:checked`)].map(input => input.value);
+      } else {
+        question.correct = [card.querySelector("[data-correct-text]")?.value.trim() || ""];
+      }
+      saveData();
+    }
+
+    document.getElementById("newExam").addEventListener("click", () => {
+      const exam = {
+        id: uid("exam"),
+        title: "Nuevo examen",
+        topic: "Tema del examen",
+        instructions: "Instrucciones para el alumno.",
+        passingScore: 70,
+        questions: []
+      };
+      data.exams.push(exam);
+      data.selectedExamId = exam.id;
+      saveData();
+    });
+
+    document.getElementById("deleteExam").addEventListener("click", () => {
+      const exam = selectedExam();
+      if (!exam) return;
+      data.exams = data.exams.filter(item => item.id !== exam.id);
+      data.selectedExamId = data.exams[0]?.id || null;
+      saveData();
+    });
+
+    function renderStudents() {
+      if (session?.role === "student") return;
+      const tbody = document.getElementById("studentsTable");
+      tbody.innerHTML = data.students.map(student => `
+        <tr>
+          <td>${escapeHtml(student.id)}</td>
+          <td>${escapeHtml(student.name)}</td>
+          <td>${escapeHtml(student.group)}</td>
+          <td>${escapeHtml(student.email)}</td>
+          <td>${maskSecret(student.pin || "1234")}</td>
+          <td>
+            <button class="secondary" data-edit-student="${student.id}">Editar</button>
+            <button class="danger" data-delete-student="${student.id}">Eliminar</button>
+          </td>
+        </tr>
+      `).join("") || '<tr><td colspan="6">No hay alumnos registrados.</td></tr>';
+      tbody.querySelectorAll("[data-edit-student]").forEach(button => {
+        button.addEventListener("click", () => editStudent(button.dataset.editStudent));
+      });
+      tbody.querySelectorAll("[data-delete-student]").forEach(button => {
+        button.addEventListener("click", () => {
+          data.students = data.students.filter(student => student.id !== button.dataset.deleteStudent);
+          data.grades = data.grades.filter(grade => grade.studentId !== button.dataset.deleteStudent);
+          saveData();
+        });
+      });
+    }
+
+    function editStudent(id) {
+      const student = data.students.find(item => item.id === id);
+      if (!student) return;
+      data.editingStudentId = id;
+      document.getElementById("studentId").value = student.id;
+      document.getElementById("studentId").disabled = true;
+      document.getElementById("studentName").value = student.name;
+      document.getElementById("studentGroup").value = student.group;
+      document.getElementById("studentEmail").value = student.email;
+      document.getElementById("studentPin").value = student.pin || "1234";
+      showView("students");
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === "students"));
+    }
+
+    function clearStudentForm() {
+      data.editingStudentId = null;
+      document.getElementById("studentId").disabled = false;
+      ["studentId", "studentName", "studentGroup", "studentEmail", "studentPin"].forEach(id => document.getElementById(id).value = "");
+    }
+
+    document.getElementById("saveStudent").addEventListener("click", () => {
+      const student = {
+        id: document.getElementById("studentId").value.trim(),
+        name: document.getElementById("studentName").value.trim(),
+        group: document.getElementById("studentGroup").value.trim(),
+        email: document.getElementById("studentEmail").value.trim(),
+        pin: document.getElementById("studentPin").value.trim() || "1234"
+      };
+      if (!student.id || !student.name) {
+        alert("La matrícula y el nombre son obligatorios.");
+        return;
+      }
+      const existing = data.students.find(item => item.id === student.id);
+      if (existing) Object.assign(existing, student);
+      else data.students.push(student);
+      clearStudentForm();
+      saveData();
+    });
+
+    document.getElementById("clearStudent").addEventListener("click", clearStudentForm);
+
+    function renderSelects() {
+      const studentOptions = data.students.map(student => `<option value="${student.id}">${escapeHtml(student.id)} · ${escapeHtml(student.name)}</option>`).join("");
+      const examOptions = data.exams.map(exam => `<option value="${exam.id}">${escapeHtml(exam.title)}</option>`).join("");
+      document.getElementById("takeStudent").innerHTML = studentOptions;
+      document.getElementById("gradeStudent").innerHTML = studentOptions;
+      document.getElementById("takeExam").innerHTML = examOptions;
+      if (session?.role === "student") {
+        document.getElementById("takeStudent").value = session.user;
+        document.getElementById("gradeStudent").value = session.user;
+        document.getElementById("takeStudent").disabled = true;
+        document.getElementById("gradeStudent").disabled = true;
+      } else {
+        document.getElementById("takeStudent").disabled = false;
+        document.getElementById("gradeStudent").disabled = false;
+      }
+    }
+
+    document.getElementById("loadExam").addEventListener("click", () => {
+      const studentId = session?.role === "student" ? session.user : document.getElementById("takeStudent").value;
+      const examId = document.getElementById("takeExam").value;
+      const exam = data.exams.find(item => item.id === examId);
+      const student = data.students.find(item => item.id === studentId);
+      const box = document.getElementById("examPlayer");
+      if (!exam || !student) {
+        box.innerHTML = '<div class="notice">Selecciona alumno y examen.</div>';
+        return;
+      }
+      box.innerHTML = `
+        <div class="notice"><strong>${escapeHtml(exam.title)}</strong><br>${escapeHtml(exam.instructions)}</div>
+        ${exam.questions.map((question, index) => renderStudentQuestion(question, index)).join("")}
+        <button class="good" id="submitExam">Enviar examen y generar boleta</button>
+      `;
+      document.getElementById("submitExam").addEventListener("click", () => submitExam(student, exam));
+      box.querySelectorAll("[data-mark-drawing]").forEach(button => {
+        button.addEventListener("click", () => {
+          const container = button.closest(".student-question");
+          container.dataset.drawingDone = "true";
+          const canvas = container.querySelector("[data-answer-drawing]");
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#eef7ff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeStyle = "#1f6fb2";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(80, 140);
+          ctx.lineTo(260, 80);
+          ctx.lineTo(520, 130);
+          ctx.stroke();
+          button.textContent = "Dibujo registrado";
+        });
+      });
+    });
+
+    function renderStudentQuestion(question, index) {
+      return `
+        <div class="student-question" data-student-question="${question.id}" data-type="${question.type}">
+          <h3>${index + 1}. ${escapeHtml(question.text)}</h3>
+          <span class="badge">${typeLabels[question.type]}</span>
+          <div class="answer-area">${renderStudentAnswer(question)}</div>
+        </div>
+      `;
+    }
+
+    function renderStudentAnswer(question) {
+      if (question.type === "single" || question.type === "dropdown") {
+        if (question.type === "dropdown") {
+          return `<select data-answer><option value="">Seleccionar</option>${(question.options || []).map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("")}</select>`;
+        }
+        return (question.options || []).map(option => `<label class="choice"><input type="radio" name="answer-${question.id}" value="${escapeHtml(option)}"> ${escapeHtml(option)}</label>`).join("");
+      }
+      if (question.type === "multiple") {
+        return (question.options || []).map(option => `<label class="choice"><input type="checkbox" name="answer-${question.id}" value="${escapeHtml(option)}"> ${escapeHtml(option)}</label>`).join("");
+      }
+      if (question.type === "truefalse") {
+        return ["Verdadero", "Falso"].map(option => `<label class="choice"><input type="radio" name="answer-${question.id}" value="${option}"> ${option}</label>`).join("");
+      }
+      if (question.type === "number") return '<input data-answer type="number">';
+      if (question.type === "date") return '<input data-answer type="date">';
+      if (question.type === "time") return '<input data-answer type="time">';
+      if (question.type === "email") return '<input data-answer type="email" placeholder="nombre@dominio.com">';
+      if (question.type === "url") return '<input data-answer type="url" placeholder="https://">';
+      if (question.type === "scale") return '<input data-answer type="range" min="1" max="5" value="3">';
+      if (question.type === "rating") {
+        return '<select data-answer><option value="">Seleccionar</option><option value="1">1 estrella</option><option value="2">2 estrellas</option><option value="3">3 estrellas</option><option value="4">4 estrellas</option><option value="5">5 estrellas</option></select>';
+      }
+      if (question.type === "essay") return '<textarea data-answer placeholder="Respuesta abierta"></textarea>';
+      if (question.type === "fillblank") return '<input data-answer placeholder="Completa el espacio">';
+      if (question.type === "matrix") return '<textarea data-answer placeholder="situacion=nivel, una por linea"></textarea>';
+      if (question.type === "matching") return '<textarea data-answer placeholder="elemento=funcion, una por linea"></textarea>';
+      if (question.type === "order") {
+        return '<p class="muted">Opciones disponibles: ' + escapeHtml((question.options || []).join(" | ")) + '</p><textarea data-answer placeholder="Escribe el orden correcto, una opcion por linea"></textarea>';
+      }
+      if (question.type === "drawing") return '<canvas data-answer-drawing width="700" height="180" style="min-height:180px"></canvas><button class="secondary" type="button" data-mark-drawing>Marcar dibujo como realizado</button>';
+      if (question.type === "file") return '<input data-answer type="file">';
+      return '<input data-answer placeholder="Respuesta corta">';
+    }
+
+    function readStudentAnswer(question) {
+      const container = document.querySelector(`[data-student-question="${question.id}"]`);
+      if (question.type === "single" || question.type === "truefalse") {
+        return [container.querySelector(`input[name="answer-${question.id}"]:checked`)?.value || ""];
+      }
+      if (question.type === "multiple") {
+        return [...container.querySelectorAll(`input[name="answer-${question.id}"]:checked`)].map(input => input.value);
+      }
+      if (question.type === "file") {
+        return [container.querySelector("[data-answer]").files.length ? "archivo" : ""];
+      }
+      if (question.type === "drawing") {
+        return [container.dataset.drawingDone === "true" ? "dibujo" : ""];
+      }
+      return [container.querySelector("[data-answer]")?.value || ""];
+    }
+
+    function cleanAnswer(value) {
+      return String(value || "").trim().toLowerCase().replace(/\r/g, "");
+    }
+
+    function cleanLines(value) {
+      return cleanAnswer(value).split("\n").map(item => item.trim()).filter(Boolean);
+    }
+
+    function isCorrect(question, answer) {
+      if (manualTypes.includes(question.type)) return Boolean(answer[0]);
+      if (question.type === "number") return Number(answer[0]) === Number(question.correct?.[0]);
+      if (["short", "fillblank"].includes(question.type)) return cleanAnswer(answer[0]).includes(cleanAnswer(question.correct?.[0]));
+      if (["date", "time", "email", "url", "scale", "rating"].includes(question.type)) return cleanAnswer(answer[0]) === cleanAnswer(question.correct?.[0]);
+      if (["matrix", "matching", "order"].includes(question.type)) return sameSet(cleanLines(answer[0]), cleanLines(question.correct?.[0]));
+      return sameSet(answer.filter(Boolean), question.correct || []);
+    }
+
+    function submitExam(student, exam) {
+      if (session?.role === "student" && student.id !== session.user) {
+        alert("No puedes enviar examen con otra matrícula.");
+        return;
+      }
+      if (!exam.questions.length) {
+        alert("Este examen no tiene preguntas.");
+        return;
+      }
+      let correct = 0;
+      exam.questions.forEach(question => {
+        const answer = readStudentAnswer(question);
+        if (isCorrect(question, answer)) correct++;
+      });
+      const score = Math.round((correct / exam.questions.length) * 100);
+      data.grades.push({
+        id: uid("grade"),
+        studentId: student.id,
+        examId: exam.id,
+        examTitle: exam.title,
+        topic: exam.topic,
+        score,
+        correct,
+        total: exam.questions.length,
+        date: new Date().toLocaleString("es-MX"),
+        status: score >= exam.passingScore ? "Aprobado" : "No aprobado"
+      });
+      saveData();
+      document.getElementById("examPlayer").innerHTML = `<div class="notice"><strong>Examen enviado.</strong><br>Calificación: ${score}. La boleta ya está disponible.</div>`;
+      document.getElementById("gradeStudent").value = student.id;
+      renderGrades();
+    }
+
+    document.getElementById("gradeStudent").addEventListener("change", renderGrades);
+
+    function renderGrades() {
+      const studentId = document.getElementById("gradeStudent").value;
+      const student = data.students.find(item => item.id === studentId);
+      document.getElementById("studentCard").innerHTML = student ? `
+        <h3>${escapeHtml(student.name)}</h3>
+        <p><strong>Matrícula:</strong> ${escapeHtml(student.id)}</p>
+        <p><strong>Grupo:</strong> ${escapeHtml(student.group)}</p>
+        <p><strong>Correo:</strong> ${escapeHtml(student.email)}</p>
+      ` : '<p class="muted">Selecciona un alumno.</p>';
+      const rows = data.grades.filter(grade => grade.studentId === studentId);
+      document.getElementById("gradesTable").innerHTML = rows.map(grade => `
+        <tr>
+          <td>${escapeHtml(grade.date)}</td>
+          <td>${escapeHtml(grade.examTitle)}</td>
+          <td>${escapeHtml(grade.topic)}</td>
+          <td><strong>${grade.score}</strong></td>
+          <td>${grade.correct} / ${grade.total}</td>
+          <td>${escapeHtml(grade.status)}</td>
+        </tr>
+      `).join("") || '<tr><td colspan="6">Este alumno aún no tiene calificaciones.</td></tr>';
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderExamList();
+      renderExamEditor();
+      renderStudents();
+      renderSelects();
+      renderGrades();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
