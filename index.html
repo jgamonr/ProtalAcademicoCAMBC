@@ -365,7 +365,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 720px;
+      min-width: 900px;
     }
 
     th, td {
@@ -528,7 +528,7 @@
       }
 
       table {
-        min-width: 640px;
+        min-width: 760px;
       }
 
       .brand-hero {
@@ -647,7 +647,7 @@
       }
 
       table {
-        min-width: 560px;
+        min-width: 720px;
         font-size: .88rem;
       }
 
@@ -711,6 +711,7 @@
         <button class="tab active" data-view="dashboard">Inicio</button>
         <button class="tab" data-view="exams">Exámenes</button>
         <button class="tab" data-view="students">Matrícula</button>
+        <button class="tab" data-view="practices">Practicas</button>
         <button class="tab" data-view="take">Vista alumno</button>
         <button class="tab" data-view="grades">Boletas</button>
         <button class="tab" id="logoutButton">Salir</button>
@@ -745,6 +746,10 @@
           <div class="card">
             <span class="badge">Boletas generadas</span>
             <div class="grade" id="dashGradeCount">0</div>
+          </div>
+          <div class="card">
+            <span class="badge">Practicas</span>
+            <div class="grade" id="dashPracticeCount">0</div>
           </div>
         </div>
         <div class="panel stack">
@@ -785,6 +790,32 @@
             <button class="danger" id="deleteExam">Eliminar examen</button>
           </div>
           <div id="examEditor"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="practices">
+      <div class="grid">
+        <div class="panel stack">
+          <div class="between">
+            <h2>Practicas</h2>
+            <button id="newPractice">Nueva</button>
+          </div>
+          <div class="list" id="practiceList"></div>
+        </div>
+        <div class="panel stack">
+          <div class="between">
+            <h2>Editor y evaluacion de practica</h2>
+            <button class="danger" id="deletePractice">Eliminar practica</button>
+          </div>
+          <div id="practiceEditor"></div>
+          <div class="card stack">
+            <h3>Calificar alumno</h3>
+            <label for="practiceStudent">Alumno</label>
+            <select id="practiceStudent"></select>
+            <div id="practiceEvaluation"></div>
+            <button class="good" id="savePracticeGrade">Guardar evaluacion en boleta</button>
+          </div>
         </div>
       </div>
     </section>
@@ -853,7 +884,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Examen</th><th>Tema</th><th>Calificación</th><th>Correctas</th><th>Estado</th></tr>
+                <tr><th>Fecha</th><th>Tipo</th><th>Actividad</th><th>Tema</th><th>Calificacion</th><th>Detalle</th><th>Estado</th><th>Anotaciones</th></tr>
               </thead>
               <tbody id="gradesTable"></tbody>
             </table>
@@ -864,7 +895,7 @@
   </main>
 
   <script>
-    const storageKey = "portal_examenes_muestra_v2";
+    const storageKey = "portal_examenes_muestra_v3";
     const sessionKey = "portal_examenes_session_v1";
     const typeLabels = {
       single: "Opción única",
@@ -892,6 +923,7 @@
 
     const defaultData = {
       selectedExamId: "exam-1",
+      selectedPracticeId: "practice-1",
       editingStudentId: null,
       exams: [
         {
@@ -1037,6 +1069,21 @@
           ]
         }
       ],
+      practices: [
+        {
+          id: "practice-1",
+          title: "Practica de autodetencion y progresion",
+          topic: "Tecnica en nieve",
+          instructions: "El instructor evalua cada item con calificacion de 0 a 100 y agrega anotaciones.",
+          passingScore: 70,
+          items: [
+            { id: "pi-1", text: "Colocacion correcta de crampones", max: 100 },
+            { id: "pi-2", text: "Uso seguro del piolet", max: 100 },
+            { id: "pi-3", text: "Autodetencion controlada", max: 100 },
+            { id: "pi-4", text: "Toma de decision y comunicacion", max: 100 }
+          ]
+        }
+      ],
       students: [
         { id: "A-001", name: "María López", group: "Alta Montaña 1", email: "maria@example.com", pin: "1234" },
         { id: "A-002", name: "Carlos Rivera", group: "Alta Montaña 1", email: "carlos@example.com", pin: "1234" }
@@ -1052,7 +1099,23 @@
           correct: 17,
           total: 19,
           date: "2026-06-09 14:00",
-          status: "Aprobado"
+          status: "Aprobado",
+          type: "Examen",
+          notes: ""
+        },
+        {
+          id: "pg-1",
+          studentId: "A-001",
+          examId: "practice-1",
+          examTitle: "Practica de autodetencion y progresion",
+          topic: "Tecnica en nieve",
+          score: 92,
+          correct: 368,
+          total: 400,
+          date: "2026-06-09 15:30",
+          status: "Aprobado",
+          type: "Practica",
+          notes: "Buen control del piolet. Reforzar comunicacion antes de iniciar maniobra."
         }
       ]
     };
@@ -1099,6 +1162,10 @@
 
     function selectedExam() {
       return data.exams.find(exam => exam.id === data.selectedExamId) || data.exams[0] || null;
+    }
+
+    function selectedPractice() {
+      return data.practices.find(practice => practice.id === data.selectedPracticeId) || data.practices[0] || null;
     }
 
     function escapeHtml(value) {
@@ -1175,7 +1242,7 @@
     function applySecurity() {
       document.body.classList.toggle("locked", !session);
       const isStudent = session?.role === "student";
-      document.querySelectorAll('.tab[data-view="dashboard"], .tab[data-view="exams"], .tab[data-view="students"]').forEach(tab => {
+      document.querySelectorAll('.tab[data-view="dashboard"], .tab[data-view="exams"], .tab[data-view="practices"], .tab[data-view="students"]').forEach(tab => {
         tab.classList.toggle("hidden", isStudent);
       });
       if (isStudent) {
@@ -1187,6 +1254,7 @@
       document.getElementById("dashExamCount").textContent = data.exams.length;
       document.getElementById("dashStudentCount").textContent = data.students.length;
       document.getElementById("dashGradeCount").textContent = data.grades.length;
+      document.getElementById("dashPracticeCount").textContent = data.practices.length;
     }
 
     function renderExamList() {
@@ -1408,6 +1476,180 @@
       saveData();
     });
 
+    function renderPracticeList() {
+      if (session?.role === "student") return;
+      const box = document.getElementById("practiceList");
+      if (!data.practices.length) {
+        box.innerHTML = '<div class="notice">No hay practicas creadas.</div>';
+        return;
+      }
+      box.innerHTML = data.practices.map(practice => `
+        <button class="${practice.id === data.selectedPracticeId ? "active" : ""}" data-select-practice="${practice.id}">
+          <span>
+            <strong>${escapeHtml(practice.title)}</strong><br>
+            <span class="muted">${escapeHtml(practice.topic)} · ${practice.items.length} items</span>
+          </span>
+        </button>
+      `).join("");
+      box.querySelectorAll("[data-select-practice]").forEach(button => {
+        button.addEventListener("click", () => {
+          data.selectedPracticeId = button.dataset.selectPractice;
+          saveData();
+        });
+      });
+    }
+
+    function renderPracticeEditor() {
+      if (session?.role === "student") return;
+      const practice = selectedPractice();
+      const editor = document.getElementById("practiceEditor");
+      if (!practice) {
+        editor.innerHTML = '<div class="notice">Crea una practica para empezar.</div>';
+        document.getElementById("practiceEvaluation").innerHTML = "";
+        return;
+      }
+      editor.innerHTML = `
+        <div class="card stack">
+          <label for="practiceTitle">Nombre de la practica</label>
+          <input id="practiceTitle" value="${escapeHtml(practice.title)}">
+          <label for="practiceTopic">Tema</label>
+          <input id="practiceTopic" value="${escapeHtml(practice.topic)}">
+          <label for="practiceInstructions">Instrucciones para instructor</label>
+          <textarea id="practiceInstructions">${escapeHtml(practice.instructions)}</textarea>
+          <label for="practicePassingScore">Calificacion minima aprobatoria</label>
+          <input id="practicePassingScore" type="number" min="0" max="100" value="${practice.passingScore}">
+          <div class="actions row">
+            <button id="savePracticeMeta">Guardar practica</button>
+            <button class="secondary" id="addPracticeItem">Agregar item</button>
+          </div>
+        </div>
+        <div class="stack">
+          ${practice.items.map((item, index) => `
+            <div class="question-card" data-practice-item="${item.id}">
+              <div class="between">
+                <h3>Item ${index + 1}</h3>
+                <span class="badge">Max ${item.max}</span>
+              </div>
+              <label>Descripcion del item</label>
+              <textarea data-item-text>${escapeHtml(item.text)}</textarea>
+              <label>Puntaje maximo</label>
+              <input data-item-max type="number" min="1" max="100" value="${item.max}">
+              <div class="actions row">
+                <button data-save-practice-item="${item.id}">Guardar item</button>
+                <button class="danger" data-delete-practice-item="${item.id}">Eliminar item</button>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      document.getElementById("savePracticeMeta").addEventListener("click", () => {
+        practice.title = document.getElementById("practiceTitle").value.trim() || "Practica sin titulo";
+        practice.topic = document.getElementById("practiceTopic").value.trim() || "Sin tema";
+        practice.instructions = document.getElementById("practiceInstructions").value.trim();
+        practice.passingScore = Number(document.getElementById("practicePassingScore").value) || 70;
+        saveData();
+      });
+      document.getElementById("addPracticeItem").addEventListener("click", () => {
+        practice.items.push({ id: uid("pi"), text: "Nuevo item de practica", max: 100 });
+        saveData();
+      });
+      editor.querySelectorAll("[data-save-practice-item]").forEach(button => {
+        button.addEventListener("click", () => {
+          const card = button.closest("[data-practice-item]");
+          const item = practice.items.find(entry => entry.id === button.dataset.savePracticeItem);
+          item.text = card.querySelector("[data-item-text]").value.trim() || "Item sin descripcion";
+          item.max = Number(card.querySelector("[data-item-max]").value) || 100;
+          saveData();
+        });
+      });
+      editor.querySelectorAll("[data-delete-practice-item]").forEach(button => {
+        button.addEventListener("click", () => {
+          practice.items = practice.items.filter(item => item.id !== button.dataset.deletePracticeItem);
+          saveData();
+        });
+      });
+      renderPracticeEvaluation();
+    }
+
+    function renderPracticeEvaluation() {
+      if (session?.role === "student") return;
+      const practice = selectedPractice();
+      const box = document.getElementById("practiceEvaluation");
+      if (!practice) {
+        box.innerHTML = '<div class="notice">Selecciona una practica.</div>';
+        return;
+      }
+      box.innerHTML = `
+        <div class="notice">${escapeHtml(practice.instructions || "Evalua cada item y agrega anotaciones para la boleta.")}</div>
+        ${practice.items.map(item => `
+          <div class="question-card">
+            <label>${escapeHtml(item.text)} <span class="muted">(0 a ${item.max})</span></label>
+            <input data-practice-score="${item.id}" type="number" min="0" max="${item.max}" value="${item.max}">
+          </div>
+        `).join("")}
+        <label for="practiceNotes">Anotaciones visibles para el alumno</label>
+        <textarea id="practiceNotes" placeholder="Comentarios del instructor, puntos fuertes y recomendaciones"></textarea>
+      `;
+    }
+
+    document.getElementById("newPractice").addEventListener("click", () => {
+      const practice = {
+        id: uid("practice"),
+        title: "Nueva practica",
+        topic: "Tema de practica",
+        instructions: "Evalua cada item con base en la ejecucion del alumno.",
+        passingScore: 70,
+        items: [{ id: uid("pi"), text: "Item inicial", max: 100 }]
+      };
+      data.practices.push(practice);
+      data.selectedPracticeId = practice.id;
+      saveData();
+    });
+
+    document.getElementById("deletePractice").addEventListener("click", () => {
+      const practice = selectedPractice();
+      if (!practice) return;
+      data.practices = data.practices.filter(item => item.id !== practice.id);
+      data.selectedPracticeId = data.practices[0]?.id || null;
+      saveData();
+    });
+
+    document.getElementById("savePracticeGrade").addEventListener("click", () => {
+      const practice = selectedPractice();
+      const studentId = document.getElementById("practiceStudent").value;
+      const student = data.students.find(item => item.id === studentId);
+      if (!practice || !student || !practice.items.length) {
+        alert("Selecciona practica, alumno y al menos un item.");
+        return;
+      }
+      let earned = 0;
+      let total = 0;
+      practice.items.forEach(item => {
+        const input = document.querySelector(`[data-practice-score="${item.id}"]`);
+        const value = Math.max(0, Math.min(Number(input.value) || 0, item.max));
+        earned += value;
+        total += item.max;
+      });
+      const score = total ? Math.round((earned / total) * 100) : 0;
+      data.grades.push({
+        id: uid("pg"),
+        studentId: student.id,
+        examId: practice.id,
+        examTitle: practice.title,
+        topic: practice.topic,
+        score,
+        correct: earned,
+        total,
+        date: new Date().toLocaleString("es-MX"),
+        status: score >= practice.passingScore ? "Aprobado" : "No aprobado",
+        type: "Practica",
+        notes: document.getElementById("practiceNotes").value.trim()
+      });
+      saveData();
+      document.getElementById("practiceNotes").value = "";
+      alert("Evaluacion de practica guardada en la boleta.");
+    });
+
     function renderStudents() {
       if (session?.role === "student") return;
       const tbody = document.getElementById("studentsTable");
@@ -1482,6 +1724,7 @@
       const examOptions = data.exams.map(exam => `<option value="${exam.id}">${escapeHtml(exam.title)}</option>`).join("");
       document.getElementById("takeStudent").innerHTML = studentOptions;
       document.getElementById("gradeStudent").innerHTML = studentOptions;
+      document.getElementById("practiceStudent").innerHTML = studentOptions;
       document.getElementById("takeExam").innerHTML = examOptions;
       if (session?.role === "student") {
         document.getElementById("takeStudent").value = session.user;
@@ -1656,19 +1899,23 @@
       document.getElementById("gradesTable").innerHTML = rows.map(grade => `
         <tr>
           <td>${escapeHtml(grade.date)}</td>
+          <td>${escapeHtml(grade.type || "Examen")}</td>
           <td>${escapeHtml(grade.examTitle)}</td>
           <td>${escapeHtml(grade.topic)}</td>
           <td><strong>${grade.score}</strong></td>
           <td>${grade.correct} / ${grade.total}</td>
           <td>${escapeHtml(grade.status)}</td>
+          <td>${escapeHtml(grade.notes || "")}</td>
         </tr>
-      `).join("") || '<tr><td colspan="6">Este alumno aún no tiene calificaciones.</td></tr>';
+      `).join("") || '<tr><td colspan="8">Este alumno aun no tiene calificaciones.</td></tr>';
     }
 
     function renderAll() {
       renderDashboard();
       renderExamList();
       renderExamEditor();
+      renderPracticeList();
+      renderPracticeEditor();
       renderStudents();
       renderSelects();
       renderGrades();
